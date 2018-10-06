@@ -6,16 +6,7 @@ https://neo4j.com/business-edge/connected-data-cripples-relational-performance/
 
 ## Instructions:
 
-1. Install dependencies
-
-* [Docker](https://docs.docker.com/install/), [docker-compose](https://docs.docker.com/compose/install/)
-* [Ruby 2.5+](https://github.com/postmodern/ruby-install)
-  * `$ ruby-install 2.5.0`
-* Bundler
-  * `$ gem install bundler`
-  * `$ bundle`
-
-2. Turn up Postgres database with:
+1. (Optional) Turn up a Postgres 10.5 database using [docker-compose](https://docs.docker.com/compose/install/):
 
 ```
 docker-compose up --detach
@@ -23,26 +14,16 @@ docker-compose up --detach
 
 A Postgres 10.5 database will now be available on host port 5442.
 
-3. Populate the database with:
+2. Populate the database with `populate_data.sql`:
 
 ```
-time bundle exec ruby populate_data.rb
+PGPASSWORD=password psql -U postgres -d graphtest -p 5442 -a -t -f populate_data.sql
 ```
 
-(It takes about 13 minutes on my system)
+It takes about 13 minutes on my system
 
-4. Benchmark queries with:
-
-```
-bundle exec ruby benchmark.rb
-```
-
-Example output on my machine:
+3. Benchmark queries with `queries/*.sql` scripts:
 
 ```
-             user     system      total        real
-depth 2  0.000075   0.000012   0.000087 (  0.022880)
-depth 3  0.000093   0.000016   0.000109 (  0.547985)
-depth 4  0.000135   0.000023   0.000158 ( 10.326733)
-depth 5  0.000110   0.000019   0.000129 (221.158533)
+time PGPASSWORD=password psql -U postgres -d graphtest -p 5442 -a -t -f queries/depth-2.sql
 ```
